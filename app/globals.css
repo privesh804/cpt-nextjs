@@ -1,0 +1,77 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.ps-sidebar-container {
+  @apply !bg-transparent text-tertiary;
+}
+.css-ewdv3l {
+  @apply flex flex-col space-y-5;
+}
+.budgetchart .MuiAreaElement-root {
+  opacity: 0.2;
+}
+.cus-tool-removal .apexcharts-toolbar {
+  display: none;
+}
+.budget-links {
+  margin-top: 8rem;
+}
+.custom-table td,
+.table-border th {
+  border-right: none;
+  font-weight: 600;
+  color: black !important;
+}
+.custom-table td,
+.table-border td {
+  border-right: none;
+}
+.custom-table tbody tr td,
+.table-border td {
+  border-bottom: none !important;
+  font-size: 0.725rem;
+}
+.custom-table tbody tr th,
+.table-border th {
+  font-size: 0.9rem;
+  font-weight: 600;
+  border-bottom: none !important;
+}
+.custom-table tbody tr th,
+.table-border {
+  border: none !important;
+}
+.profile-stickers {
+  margin-left: -30px;
+}
+
+.hide-scrollbar {
+  -ms-overflow-style: none !important;
+  scrollbar-width: none !important;
+}
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.custom-pop-style{
+  margin-left: -15px;
+}
+.status-rejected {
+  color: #f44336; /* Red */
+}
+
+.status-approved {
+  color: #4caf50; /* Green */
+}
+
+.text-red-500 {
+  color: #f44336;
+}
+
+.ml-2 {
+  margin-left: 0.5rem;
+}
+
+.font-semibold {
+  font-weight: 600;
+}

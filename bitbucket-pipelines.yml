@@ -1,0 +1,59 @@
+image: node:20
+definitions:
+  caches:
+    npm: ~/.npm
+
+pipelines:
+  branches:
+    "{main}":
+      - step:
+          name: Build and Package
+          caches:
+            - npm
+          script:
+            - echo "Starting build process..."
+            - npm ci
+            # Create .env file before building
+            - |
+              cat > .env << EOL
+              NEXT_PUBLIC_NAME=$NEXT_PUBLIC_NAME
+              NEXT_PUBLIC_VERSION=$NEXT_PUBLIC_VERSION
+              NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+              NEXT_PUBLIC_API_KEY=$NEXT_PUBLIC_API_KEY
+              NEXT_PUBLIC_AUTH_DOMAIN=$NEXT_PUBLIC_AUTH_DOMAIN
+              NEXT_PUBLIC_PROJECT_ID=$NEXT_PUBLIC_PROJECT_ID
+              NEXT_PUBLIC_STORAGE_BUCKET=$NEXT_PUBLIC_STORAGE_BUCKET
+              NEXT_PUBLIC_MESSAGING_SENDER_ID=$NEXT_PUBLIC_MESSAGING_SENDER_ID
+              NEXT_PUBLIC_APP_ID=$NEXT_PUBLIC_MESSAGING_SENDER_ID
+              NEXT_PUBLIC_VAPID_KEY=$NEXT_PUBLIC_VAPID_KEY
+              EOL
+            - echo "Building Next.js application..."
+            - npm run build
+            - echo "Packaging build files..."
+            # Include .env in the tar archive
+            - tar -czf build.tar.gz .next package.json package-lock.json public node_modules .env
+            - pipe: atlassian/rsync-deploy:0.6.0
+              variables:
+                USER: $SSH_USER
+                SERVER: $SSH_HOST
+                REMOTE_PATH: $BUILD_PATH
+                LOCAL_PATH: "build.tar.gz"
+                DEBUG: "true"
+      - step:
+          name: Deploy
+          script:
+            - pipe: atlassian/ssh-run:0.8.1
+              variables:
+                SSH_USER: $SSH_USER
+                SERVER: $SSH_HOST
+                COMMAND: |
+                  source ~/.nvm/nvm.sh && \
+                  cd $BUILD_PATH && \
+                  echo "Extracting build files..." && \
+                  tar -xzf build.tar.gz && \
+                  rm build.tar.gz && \
+                  echo "Starting application with PM2..." && \
+                  npx pm2 delete tracking-app 2>/dev/null || true && \
+                  npx pm2 start ecosystem.config.js && \
+                  echo "Deployment complete! PM2 status:" && \
+                  npx pm2 list
